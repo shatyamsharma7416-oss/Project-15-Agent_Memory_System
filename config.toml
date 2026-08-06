@@ -1,0 +1,13 @@
+MAX_LOOP = 3
+MAX_CHARS = 10000
+
+LLM_MODEL = "freellmapi"
+
+
+[models.freellmapi]
+provider = "freellmapi"
+url = "https://freellmapi-seyc.onrender.com/v1"
+api = "FREE_LLM_API"
+name = "auto"
+temperature = 0.3
+max_tokens = 10000
