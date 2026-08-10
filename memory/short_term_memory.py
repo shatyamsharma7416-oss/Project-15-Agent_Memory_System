@@ -11,6 +11,7 @@ class ShortTermMemory():
 
     def add(self, assistant_msg: str | dict, role: str = "assistant", user_msg: str = None):
         """Add a new turn and update the sliding window."""
+
         if role == "assistant":
             self.raw_chat.append({"role": "user", "content": user_msg})
             self.raw_chat.append({"role": "assistant", "content": assistant_msg})

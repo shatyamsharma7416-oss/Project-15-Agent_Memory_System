@@ -22,37 +22,49 @@ ltm = LongTermMemory(llm_client=client)
 
 
 session_id = ltm.session_id
+
 user_input = input("Input your query: ")
-messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat + [{"role": "user", "content": user_input}]
+stm.add(assistant_msg={"role": "user", "content": user_input}, role="tool")
+messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat
 while True:
-    if user_input == "exit":
+    if user_input.strip().lower() == "exit":
         ltm.add(stm.slide_chat)
         break
 
-    print("\n\n"+str(messages)+"\n\n")
+    print("\n\n"+str(messages[1:]))
     response = client.chat.completions.create(
         model="auto",
         messages=messages,
         tools=[retrieve_facts_schema],
         tool_choice='auto'
     )
-    # print(response.choices[0].message)
+    msg = response.choices[0].message
 
-    if response.choices[0].message.content:
-        print(response.choices[0].message.content)
-        stm.add(user_msg=user_input, assistant_msg=response.choices[0].message.content)
+    print(response.choices[0].message)
 
-    if response.choices[0].message.tool_calls:
-        stm.add(user_msg=user_input, assistant_msg=response.choices[0].message.tool_calls)
 
-        for tool_call in response.choices[0].message.tool_calls:
+    if msg.tool_calls:
+        assistant_tool_msg = {
+            "role": "assistant",
+            "content": msg.content,
+            "tool_calls": [tc.model_dump() for tc in msg.tool_calls],
+        }
+        stm.add(assistant_msg=assistant_tool_msg, role="tool")
+
+        for tool_call in msg.tool_calls:
             tool_result = select_service(tool_call.function)
-            print(tool_result)
-            stm.add(assistant_msg={"role": "tool", "tool_call_id":tool_call.id, "content": str(tool_result)}, role="tool")
+            stm.add(
+                assistant_msg={
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": str(tool_result),
+                },
+                role="tool",
+            )
+            messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat
 
     if response.choices[0].finish_reason == "stop":
+        stm.add(assistant_msg={"role": "assistant", "content": msg.content}, role="tool")
         user_input = input("Input your query: ")
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat + [{"role": "user", "content": user_input}]
-
-
-
+        stm.add(assistant_msg={"role": "user", "content": user_input}, role="tool")
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat
