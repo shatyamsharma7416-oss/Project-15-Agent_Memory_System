@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import datetime
 
-from memory.short_term_memory import ShortTermMemory
-from memory.long_term_memory import LongTermMemory
+from memory_code import ShortTermMemory
+from memory_code import LongTermMemory
 
 from tools.facts_retrieve import retrieve_facts_schema
 from function_call import select_service
