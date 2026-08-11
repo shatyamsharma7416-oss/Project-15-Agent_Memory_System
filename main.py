@@ -28,7 +28,7 @@ stm.add(assistant_msg={"role": "user", "content": user_input}, role="tool")
 messages = [{"role": "system", "content": SYSTEM_PROMPT}] + stm.slide_chat
 while True:
     if user_input.strip().lower() == "exit":
-        ltm.add(stm.slide_chat)
+        ltm.add(stm.raw_chat)
         break
 
     print("\n\n"+str(messages[1:]))
