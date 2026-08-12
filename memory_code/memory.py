@@ -104,7 +104,7 @@ class LongTermMemory:
 
 
 
-class ShortTermMemory():
+class ShortTermMemory:
     """It manages memory for current session conversation."""
 
     def __init__(self, max_turns: int = 10, mode: str = "sliding_window", llm_client=None):
